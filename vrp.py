@@ -2,10 +2,9 @@ import sys
 import math
 import io
 
-#function for calculating distance
-#takes 
-#load data from .txt
-#start new driver, keep routing to next job until distance is equal to half 12*60, then return home\
+# I would probably have used google OR tools if allowed
+# I was interested in using some clustering algorithms such as k-means but didn't end up having enough time
+# Here's my brute force solution
 
 class Point:
     def __init__(self, x, y):
@@ -24,7 +23,18 @@ class Load:
         self.id = id
         self.pickup = pickup
         self.dropoff = dropoff
-        
+
+def loadProblemFromFile(filePath):
+    f = open(filePath, "r")
+    problemStr = f.read()
+    f.close()
+    return loadProblemFromProblemStr(problemStr)
+
+def getPointFromPointStr(pointStr):
+    pointStr = pointStr.replace("(","").replace(")","")
+    splits = pointStr.split(",")
+    return Point(float(splits[0]), float(splits[1]))
+      
 class VRP:
     def __init__(self, loads):
         self.loads = loads
@@ -39,13 +49,7 @@ class VRP:
         driverDistance= 0
         for load in self.loads:
             loadDistance = distanceBetweenPoints(driverCoordinates, load.pickup) + distanceBetweenPoints(load.pickup, load.dropoff)
-            
-            #print(driverRoute)
-            #print(load.id)
-            #print(driverDistance)
-            #print(driverDistance + loadDistance + distanceBetweenPoints(load.dropoff, Point(0,0)))
             if driverDistance + loadDistance + distanceBetweenPoints(load.dropoff, Point(0,0)) > 720.0:
-                #print("reset")
                 print(driverRoute)
                 driverRoute = []
                 driverCoordinates = Point(0,0)
@@ -54,19 +58,6 @@ class VRP:
             driverDistance += distanceBetweenPoints(driverCoordinates, load.pickup) + distanceBetweenPoints(load.pickup, load.dropoff)
             driverCoordinates = load.dropoff
         print(driverRoute)
-
-
-
-def loadProblemFromFile(filePath):
-    f = open(filePath, "r")
-    problemStr = f.read()
-    f.close()
-    return loadProblemFromProblemStr(problemStr)
-
-def getPointFromPointStr(pointStr):
-    pointStr = pointStr.replace("(","").replace(")","")
-    splits = pointStr.split(",")
-    return Point(float(splits[0]), float(splits[1]))
 
 def loadProblemFromProblemStr(problemStr):
     loads = []
@@ -87,10 +78,7 @@ def loadProblemFromProblemStr(problemStr):
         loads.append(Load(id, pickup, dropoff))
     return VRP(loads)
 
-
 if __name__ == "__main__":
-    #print(sys.argv[1])
     problem = loadProblemFromFile(sys.argv[1])
-    #print(problem.toProblemString())
     problem.solver()
     
